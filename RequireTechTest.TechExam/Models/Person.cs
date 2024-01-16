@@ -10,5 +10,7 @@ namespace RequireTechTest.TechExam.Models
 
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
+
+        public int Age => DateTime.Now.Year - BirthDate.Year;
     }
 }
