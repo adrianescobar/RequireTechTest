@@ -10,28 +10,38 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_Insert_A_Customer_In_Database_Successfully()
         {
+            /*
+                Using Entity Framework, set up a data model (you can use Person from previous exercises), and provide an example of Add a new person to the database, retrieve a person based on their ID, update the information, deleting the person. 
+            */
+            // Arrange
             TechExamDbContext context = GetTechExamDbContextInMemory("test_insert");
             CustomerRepository customerRepository = new CustomerRepository(context);
             Customer customer = createCustomer();
             CancellationToken cancellationToken = GetCancellationToken();
-
+            
+            // Act
             await customerRepository.Insert(customer, cancellationToken);
+
             await context.SaveChangesAsync();
 
+            // Assert
             Assert.True(customer.Id > 0);
         }
 
         [Fact]
         public async void Should_FindById_Returns_A_Customer_From_Database_Successfully()
         {
+            // Arrange
             TechExamDbContext context = GetTechExamDbContextInMemory("test_find");
             CancellationToken cancellationToken = GetCancellationToken();
             Customer customer = createCustomer();
             CustomerRepository customerRepository = new CustomerRepository(context);
             await AddNewCustomer(context, customer, cancellationToken);
 
+            // Act
             Customer? customerReturned = await customerRepository.FindById(customer.Id, cancellationToken);
 
+            // Assert
             Assert.NotNull(customerReturned);
             Assert.Equal(customer.Id, customerReturned.Id);
             Assert.Equal(customer.Name, customerReturned.Name);
@@ -41,6 +51,7 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_Be_Removed_A_Customer_From_Database_Successfully()
         {
+            // Arrange
             TechExamDbContext context = GetTechExamDbContextInMemory("test_delete");
             CancellationToken cancellationToken = GetCancellationToken();
             Customer customer = createCustomer();
@@ -51,9 +62,11 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
             Customer? customerFromDb = await customerRepository.FindById(customer.Id, cancellationToken);
             Assert.NotNull(customerFromDb);
 
+            // Act
             customerRepository.Delete(customerFromDb);
+            
             await context.SaveChangesAsync();
-
+            // Assert
             Customer? customerRemoved = await customerRepository.FindById(customer.Id, cancellationToken);
             Assert.Null(customerRemoved);
         }
@@ -61,6 +74,7 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_Be_Updated_A_Customer_From_Database_Successfully()
         {
+            // Arrange
             TechExamDbContext context = GetTechExamDbContextInMemory("test_update");
             CancellationToken cancellationToken = GetCancellationToken();
             Customer customer = createCustomer();
@@ -74,18 +88,25 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
 
             customerFromDb.Name = newName;
 
+            // Act
             customerRepository.Update(customerFromDb);
             await context.SaveChangesAsync();
 
+            // Assert
             Customer? customerUpdated = await customerRepository.FindById(customer.Id, cancellationToken);
-            Assert.NotNull(customerUpdated);
 
+            Assert.NotNull(customerUpdated);
             Assert.Equal(newName, customerUpdated.Name);
         }
 
         [Fact]
-        public async void Should_Find_Customer_By_BirhDay_From_Database_Successfully()
+        public async void Should_Find_Customers_By_BirhDay_From_Database_Successfully()
         {
+            /*
+            Using Linq, provide the code to get the persons that the date of birth is January 1, 2011.
+            */
+
+            // Arrange
             TechExamDbContext context = GetTechExamDbContextInMemory("test_by_birthday");
             CancellationToken cancellationToken = GetCancellationToken();
             DateTime expectedBirthday = new DateTime(2011, 01, 01);
@@ -106,8 +127,10 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
 
             CustomerRepository customerRepository = new CustomerRepository(context);
             
+            // Act
             List<Customer> customersMatched = await customerRepository.FindCustomersByBirthDate(expectedBirthday);
 
+            // Assert
             Assert.Equal(customerWithBirthdayMatch.Count, customersMatched.Count);
             Assert.All(customersMatched, customer => Assert.Equal(expectedBirthday, customer.BirthDate));
         }
