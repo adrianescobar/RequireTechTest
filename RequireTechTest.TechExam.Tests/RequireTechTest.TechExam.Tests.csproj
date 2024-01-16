@@ -23,6 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../RequireTechTest.TechExam\RequireTechTest.TestExam.csproj" />
+    <ProjectReference Include="..\RequireTechTest.TechExam\RequireTechTest.TechExam.csproj" />
   </ItemGroup>
 </Project>
