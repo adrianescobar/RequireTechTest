@@ -10,11 +10,11 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_Insert_A_Customer_In_Database_Successfully()
         {
-            TechExamDbContext context = GetDocumentContext("test_insert");
+            TechExamDbContext context = GetTechExamDbContextInMemory("test_insert");
             CustomerRepository customerRepository = new CustomerRepository(context);
-            Customer customer = new Customer("Jose Maria Villanueva", new DateTime(1991,08,08));
-            CancellationToken  cancellationToken = new CancellationTokenSource().Token;
-          
+            Customer customer = createCustomer();
+            CancellationToken cancellationToken = GetCancellationToken();
+
             await customerRepository.Insert(customer, cancellationToken);
             await context.SaveChangesAsync();
 
@@ -24,16 +24,14 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_FindById_Returns_A_Customer_From_Database_Successfully()
         {
-            TechExamDbContext context = GetDocumentContext("test_find");
-            CancellationToken  cancellationToken = new CancellationTokenSource().Token;
-            Customer customer = new Customer("Jose Maria Villanueva", new DateTime(1991,08,08));
+            TechExamDbContext context = GetTechExamDbContextInMemory("test_find");
+            CancellationToken cancellationToken = GetCancellationToken();
+            Customer customer = createCustomer();
             CustomerRepository customerRepository = new CustomerRepository(context);
+            await AddNewCustomer(context, customer, cancellationToken);
 
-            await context.Customers.AddAsync(customer, cancellationToken);
-            await context.SaveChangesAsync();
-            
             Customer? customerReturned = await customerRepository.FindById(customer.Id, cancellationToken);
-            
+
             Assert.NotNull(customerReturned);
             Assert.Equal(customer.Id, customerReturned.Id);
             Assert.Equal(customer.Name, customerReturned.Name);
@@ -43,13 +41,12 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_Be_Removed_A_Customer_From_Database_Successfully()
         {
-            TechExamDbContext context = GetDocumentContext("test_delete");
-            CancellationToken  cancellationToken = new CancellationTokenSource().Token;
-            Customer customer = new Customer("Jose Maria Villanueva", new DateTime(1991,08,08));
+            TechExamDbContext context = GetTechExamDbContextInMemory("test_delete");
+            CancellationToken cancellationToken = GetCancellationToken();
+            Customer customer = createCustomer();
             CustomerRepository customerRepository = new CustomerRepository(context);
-
-            await context.Customers.AddAsync(customer, cancellationToken);
-            await context.SaveChangesAsync();
+            
+            await AddNewCustomer(context, customer, cancellationToken);
             
             Customer? customerFromDb = await customerRepository.FindById(customer.Id, cancellationToken);
             Assert.NotNull(customerFromDb);
@@ -64,12 +61,12 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
         [Fact]
         public async void Should_Be_Updated_A_Customer_From_Database_Successfully()
         {
-            TechExamDbContext context = GetDocumentContext("test_update");
-            CancellationToken  cancellationToken = new CancellationTokenSource().Token;
-            Customer customer = new Customer("Jose Maria Villanueva", new DateTime(1991,08,08));
+            TechExamDbContext context = GetTechExamDbContextInMemory("test_update");
+            CancellationToken cancellationToken = GetCancellationToken();
+            Customer customer = createCustomer();
             CustomerRepository customerRepository = new CustomerRepository(context);
-            await context.Customers.AddAsync(customer, cancellationToken);
-            await context.SaveChangesAsync();
+
+            await AddNewCustomer(context, customer, cancellationToken);
             string newName = "Jose Maria Villalejos";
 
             Customer? customerFromDb = await customerRepository.FindById(customer.Id, cancellationToken);
@@ -87,7 +84,23 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
             
         }
 
-        private TechExamDbContext GetDocumentContext(string name = "test")
+        private static Customer createCustomer()
+        {
+            return new Customer("Jose Maria Villanueva", new DateTime(1991, 08, 08));
+        }
+
+        private static CancellationToken GetCancellationToken()
+        {
+            return new CancellationTokenSource().Token;
+        }
+
+        private static async Task AddNewCustomer(TechExamDbContext context, Customer customer, CancellationToken cancellationToken)
+        {
+            await context.Customers.AddAsync(customer, cancellationToken);
+            await context.SaveChangesAsync();
+        }
+
+        private TechExamDbContext GetTechExamDbContextInMemory(string name = "test")
         {
             var options = new DbContextOptionsBuilder<TechExamDbContext>()
                             .UseInMemoryDatabase(name)

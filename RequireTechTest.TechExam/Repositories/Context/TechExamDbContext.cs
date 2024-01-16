@@ -16,7 +16,6 @@ namespace RequireTechTest.TechExam.Repositories.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(TechExamDbContext))));
-
         }
     }
 }
