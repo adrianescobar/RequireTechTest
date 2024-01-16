@@ -14,6 +14,9 @@ namespace RequireTechTest.TechExam.Repositories.Context.EntityConfigurations
             builder.Property(x => x.Name).HasMaxLength(255);
             builder.Property(x => x.BirthDate);
             builder.Ignore(x => x.Age);
+
+            builder.HasIndex(b => new { b.BirthDate }, "IX_Birthday_Descending")
+                .IsDescending();
         }
     }
 }
