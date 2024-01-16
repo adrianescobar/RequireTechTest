@@ -81,12 +81,46 @@ namespace RequireTechTest.TechExam.Tests.Repositories.Implementations
             Assert.NotNull(customerUpdated);
 
             Assert.Equal(newName, customerUpdated.Name);
-            
         }
 
-        private static Customer createCustomer()
+        [Fact]
+        public async void Should_Find_Customer_By_BirhDay_From_Database_Successfully()
         {
-            return new Customer("Jose Maria Villanueva", new DateTime(1991, 08, 08));
+            TechExamDbContext context = GetTechExamDbContextInMemory("test_by_birthday");
+            CancellationToken cancellationToken = GetCancellationToken();
+            DateTime expectedBirthday = new DateTime(2011, 01, 01);
+
+            List<Customer> customerWithBirthdayMatch = new List<Customer> {
+                createCustomer("Matilda Mirella", expectedBirthday),
+                createCustomer("Ramona Hidalgo Villaleon", expectedBirthday),
+                createCustomer("Angelines Fernandez", expectedBirthday)
+            };
+            
+            List<Customer> customerWithoutBirthdayMatch = new List<Customer> {
+                createCustomer("Rosa Maria Gutierrez", new DateTime(1992, 06, 11)),
+                createCustomer("Maria Antonieta de las Nieves", new DateTime(2003, 01, 20))
+            };
+
+            customerWithBirthdayMatch.ForEach( async customer => await AddNewCustomer(context, customer, cancellationToken));
+            customerWithoutBirthdayMatch.ForEach( async customer => await AddNewCustomer(context, customer, cancellationToken));
+
+            CustomerRepository customerRepository = new CustomerRepository(context);
+            
+            List<Customer> customersMatched = await customerRepository.FindCustomersByBirthDate(expectedBirthday);
+
+            Assert.Equal(customerWithBirthdayMatch.Count, customersMatched.Count);
+            Assert.All(customersMatched, customer => Assert.Equal(expectedBirthday, customer.BirthDate));
+        }
+
+        private static Customer createCustomer(string name = "", DateTime? birthDate = null)
+        {
+
+            if(birthDate.HasValue) {
+                return new Customer(name, birthDate.Value);
+            }
+
+           return new Customer(name, new DateTime(1991, 08, 08));
+            
         }
 
         private static CancellationToken GetCancellationToken()
