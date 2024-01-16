@@ -5,6 +5,6 @@ namespace RequireTechTest.TechExam.Repositories.Interfaces
 {
     public interface ICustomerRepository : IRepository<Customer>
     {
-        
+        Task<List<Customer>> FindCustomersByBirthDate(DateTime birthDate);
     }
 }
