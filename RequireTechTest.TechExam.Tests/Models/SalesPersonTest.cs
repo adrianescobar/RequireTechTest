@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using RequireTechTest.TechExam.Models;
-using Xunit;
 
 namespace RequireTechTest.TechExam.Tests.Models
 {
