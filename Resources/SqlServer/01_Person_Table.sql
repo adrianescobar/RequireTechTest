@@ -1,0 +1,8 @@
+
+--CREATE TABLES
+CREATE TABLE Person (
+	Id int IDENTITY(1,1) NOT NULL,
+	Name nvarchar(255) NOT  NULL,
+	Birthday date NOT NULL,
+	CONSTRAINT PK_Person PRIMARY KEY (Id)
+);
